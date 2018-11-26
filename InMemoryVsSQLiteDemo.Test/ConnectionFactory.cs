@@ -1,4 +1,5 @@
 ﻿using InMemoryVsSQLiteDemo.Model;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
@@ -13,7 +14,7 @@ namespace InMemoryVsSQLiteDemo.Test
 
         public BlogDBContext CreateContextForInMemory()
         {
-            var option = new DbContextOptionsBuilder<BlogDBContext>().UseInMemoryDatabase(databaseName: ":memory:").Options;
+            var option = new DbContextOptionsBuilder<BlogDBContext>().UseInMemoryDatabase(databaseName: "Test_Database").Options;
 
             var context = new BlogDBContext(option);
             if (context != null)
@@ -27,9 +28,13 @@ namespace InMemoryVsSQLiteDemo.Test
 
         public BlogDBContext CreateContextForSQLite()
         {
-            var option = new DbContextOptionsBuilder<BlogDBContext>().UseSqlite("DataSource=" + Path.Combine("E:/Project", "blogging.db")).Options;
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+
+            var option = new DbContextOptionsBuilder<BlogDBContext>().UseSqlite(connection).Options;
 
             var context = new BlogDBContext(option);
+            
             if (context != null)
             {
                 context.Database.EnsureDeleted();
